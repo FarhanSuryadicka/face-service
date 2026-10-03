@@ -10,7 +10,7 @@ Fitur absensi wajah untuk sistem **HRIS** perusahaan:
 | Bagian | Teknologi | Status |
 |---|---|---|
 | **face-service** (repo ini) | Python FastAPI + OpenCV DNN (ONNX), CPU saja | ✅ Selesai, 11 tes lulus. Belum di-deploy |
-| **face-demo-app** (`D:\face-demo-app`, folder terpisah) | Expo / React Native, prototipe Android | ✅ APK jadi. **Belum dites di HP sungguhan** |
+| **face-demo-app** (`D:\face-demo-app`, folder terpisah) | Expo / React Native, prototipe Android | ✅ v1.0.3 sudah dites di HP: daftar wajah + absen berjalan |
 | Backend HR | Laravel (web HR + API untuk mobile) | ❌ Belum dikerjakan |
 | Mobile HRIS | React Native (dikerjakan tim mobile) | ❌ Belum. Logika liveness bisa diambil dari face-demo-app |
 
@@ -99,10 +99,12 @@ venv\Scripts\python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 ## Status & langkah berikutnya
 
-1. **Sekarang:** uji face-demo-app di HP (lihat `D:\face-demo-app\AGENTS.md`). Kumpulkan skor untuk kalibrasi threshold, dan pastikan arah toleh kiri/kanan benar.
+1. **Sekarang:** face-demo-app sudah berjalan di HP. Kumpulkan skor "orang sama" vs "orang lain" dan uji foto/layar palsu untuk kalibrasi threshold (lihat `D:\face-demo-app\AGENTS.md`).
 2. `git init` + push ke GitHub private, lalu deploy ke Coolify (langkah di README).
 3. Jalankan `scripts/benchmark.py` di VPS.
 4. Integrasi Laravel: service `FaceService` (HTTP client ke `/embed`), migration `employee_faces` (embedding JSON), endpoint enroll & check-in, validasi shift/geofence/device, deteksi fake GPS.
+   - **Aturan 1 wajah = 1 karyawan** (sudah ada di face-demo-app v1.0.4): saat enroll, bandingkan embedding baru dengan **semua** embedding karyawan lain (1:N), dan tolak kalau kemiripan ≥ threshold absen. Untuk ratusan sampai ribuan karyawan, cukup hitung di PHP. Kalau sangat besar, pakai vector index (pgvector).
+   - Sediakan jalur override oleh admin HR (mis. kembar identik) dan log setiap penolakan duplikat.
 
 ### Pekerjaan server di luar repo ini (catatan pemilik)
 
