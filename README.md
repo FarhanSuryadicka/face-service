@@ -94,6 +94,14 @@ python -m pytest -q
 FACE_API_KEY=rahasia uvicorn app.main:app --port 8000
 ```
 
+### Uji dengan webcam (halaman demo)
+
+```bash
+FACE_API_KEY=rahasia FACE_DEMO=true uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Buka `http://127.0.0.1:8000/demo`. Di halaman itu Anda bisa mendaftarkan 3 foto wajah, lalu mencoba absen. Kecocokannya dihitung di browser dengan cara yang sama seperti nanti di Laravel. Halaman ini mati secara default. **Jangan aktifkan `FACE_DEMO` di server produksi.**
+
 Contoh panggilan:
 ```bash
 curl -H "X-API-Key: rahasia" -F image=@tests/fixtures/real_face.jpg http://127.0.0.1:8000/embed

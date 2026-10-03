@@ -38,5 +38,8 @@ class Settings:
     # threshold cosine SFace (rekomendasi OpenCV: 0.363). Dipakai /compare; Laravel punya threshold sendiri.
     match_threshold: float = field(default_factory=lambda: float(_env("FACE_MATCH_THRESHOLD", "0.363")))
 
+    # halaman /demo (webcam) untuk uji lokal. JANGAN diaktifkan di server produksi.
+    demo: bool = field(default_factory=lambda: _bool("FACE_DEMO", False))
+
 
 settings = Settings()

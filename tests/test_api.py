@@ -106,3 +106,7 @@ def test_quality_wajah_kecil_dan_gelap(client):
     issues = r.json()["quality"]["issues"]
     assert "face_too_small" in issues
     assert "too_dark" in issues
+
+
+def test_demo_mati_secara_default(client):
+    assert client.get("/demo").status_code == 404

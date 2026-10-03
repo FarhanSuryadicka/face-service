@@ -1,10 +1,11 @@
 import hmac
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 
 from fastapi import Depends, FastAPI, File, Header, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from .config import settings
 from .engine import EMBEDDING_DIM, FaceEngine, FaceError, cosine
@@ -54,6 +55,14 @@ def health():
             "antispoof": "minifasnet_v2+v1se" if engine and engine.antispoof_enabled else None,
         },
     }
+
+
+if settings.demo:
+
+    @app.get("/demo", include_in_schema=False)
+    def demo():
+        """Halaman uji webcam (hanya kalau FACE_DEMO=true)."""
+        return FileResponse(Path(__file__).parent / "static" / "demo.html")
 
 
 @app.post("/embed", dependencies=[Depends(require_api_key)])
