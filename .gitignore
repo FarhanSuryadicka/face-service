@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+venv/
+.venv/
+*.part
+
+# diunduh otomatis oleh scripts/download_models.py (juga saat docker build)
+models/face_detection_yunet_2023mar.onnx
+models/face_recognition_sface_2021dec.onnx
