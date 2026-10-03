@@ -110,3 +110,4 @@ def test_quality_wajah_kecil_dan_gelap(client):
 
 def test_demo_mati_secara_default(client):
     assert client.get("/demo").status_code == 404
+
