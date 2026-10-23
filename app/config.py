@@ -13,7 +13,7 @@ def _bool(name: str, default: bool) -> bool:
 
 @dataclass(frozen=True)
 class Settings:
-    api_key: str = field(default_factory=lambda: _env("FACE_API_KEY", ""))
+    api_key: str = field(default_factory=lambda: _env("FACE_API_KEY", _env("FACE_SERVICE_KEY", "")))
     models_dir: Path = field(
         default_factory=lambda: Path(_env("FACE_MODELS_DIR", str(Path(__file__).resolve().parent.parent / "models")))
     )
