@@ -9,10 +9,10 @@ Fitur absensi wajah untuk sistem **HRIS** perusahaan:
 
 | Bagian | Teknologi | Status |
 |---|---|---|
-| **face-service** (repo ini) | Python FastAPI + OpenCV DNN (ONNX), CPU saja | ✅ Selesai, 11 tes lulus. Belum di-deploy |
+| **face-service** (repo ini) | Python FastAPI + OpenCV DNN (ONNX), CPU saja | ✅ Selesai, 11 tes lulus. **Sudah di-deploy** di Coolify (dipakai HRMS) |
 | **face-demo-app** (`D:\face-demo-app`, folder terpisah) | Expo / React Native, prototipe Android | ✅ v1.0.3 sudah dites di HP: daftar wajah + absen berjalan |
-| Backend HR | Laravel (web HR + API untuk mobile) | ❌ Belum dikerjakan |
-| Mobile HRIS | React Native (dikerjakan tim mobile) | ❌ Belum. Logika liveness bisa diambil dari face-demo-app |
+| Backend HR | Laravel (web HR + API untuk mobile) | ✅ Terintegrasi (`FaceRecognitionService`, `POST /embed`, timeout 20 dtk) |
+| Mobile HRIS | React Native (Expo) | ✅ Absen & daftar wajah dengan liveness ML Kit |
 
 Pemakaian awal: internal perusahaan sendiri (ratusan karyawan), tapi arsitekturnya disiapkan supaya bisa dijual ke klien.
 
@@ -91,6 +91,14 @@ venv\Scripts\python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 - Embedding dikembalikan dalam bentuk ternormalisasi L2, jadi cosine similarity = dot product. Laravel bergantung pada ini.
 - Format error tetap `{"error": "<kode>", "message": "..."}`. Kode error dan `quality.issues` adalah kontrak dengan Laravel dan app (lihat README).
 - Inferensi OpenCV DNN tidak thread-safe, jadi dijaga satu lock di `FaceEngine`. Untuk skala, tambah proses (`WEB_CONCURRENCY`), bukan thread.
+
+## Catatan produksi (16 Nov 2026)
+
+- **Gejala:** absen kadang gagal "Server Wajah Tidak Merespons"; log Laravel `cURL error 28 ... 0 bytes received` setelah 20 dtk. Kode tidak bermasalah (uji beban lokal: 10 request bersamaan selesai < 1,6 dtk).
+- **Penyebab:** RAM VPS penuh, kernel memindahkan memori face-service (model ~200 MB) ke swap saat menganggur. Request pertama setelah itu memuat ulang dari disk > 20 dtk.
+- **Perbaikan (Coolify → face-service):** Resource Limits: Swappiness `0`, Memory limit = Memory+swap limit = `900m`; env `WEB_CONCURRENCY=1` (±125 MB RAM, cukup untuk ratusan karyawan). Cek: `cat /sys/fs/cgroup/memory.swap.max` harus `0`, `grep VmSwap /proc/[0-9]*/status` harus `0 kB`.
+- `FACE_API_KEY` di face-service harus sama persis dengan `FACE_SERVICE_KEY` di Laravel. Nilai kosong membuat service gagal start.
+- Uvicorn jalan dengan `--no-access-log`, jadi request sukses tidak tercatat; hanya traceback yang muncul di Runtime Logs.
 
 ## Threshold (belum dikalibrasi)
 
